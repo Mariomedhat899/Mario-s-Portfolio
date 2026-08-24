@@ -4,6 +4,9 @@
   display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
   margin-bottom: clamp(36px, 5vw, 56px);
 }
+.sec-head .eyebrow::before {
+  display: none;
+}
 .sec-head h2 {
   font-family: "Archivo", sans-serif;
   font-size: clamp(1.9rem, 3.6vw, 2.7rem); font-weight: 800; letter-spacing: -.01em; margin-top: 16px;
