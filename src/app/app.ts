@@ -1,4 +1,4 @@
-import { Component, effect, inject, PLATFORM_ID, signal } from '@angular/core';
+import { Component, effect, inject, AfterViewInit, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { NavComponent } from './components/nav/nav.component';
@@ -10,6 +10,7 @@ import { StackComponent } from './components/stack/stack.component';
 import { EducationComponent } from './components/education/education.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { initReveal } from './reveal';
 
 @Component({
   selector: 'app-root',
@@ -28,7 +29,7 @@ import { FooterComponent } from './components/footer/footer.component';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
+export class App implements AfterViewInit {
   private platformId = inject(PLATFORM_ID);
   protected readonly theme = signal<'light' | 'dark'>('dark');
 
@@ -47,6 +48,12 @@ export class App {
     this.theme.set(next);
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('mm-theme', next);
+    }
+  }
+
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      initReveal();
     }
   }
 }
