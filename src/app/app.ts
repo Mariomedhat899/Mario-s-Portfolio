@@ -39,6 +39,7 @@ export class App implements AfterViewInit {
       const saved = localStorage.getItem('mm-theme');
       if (saved) {
         this.theme.set(saved as 'light' | 'dark');
+        document.documentElement.setAttribute('data-theme', saved);
       }
     });
   }
@@ -48,6 +49,7 @@ export class App implements AfterViewInit {
     this.theme.set(next);
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('mm-theme', next);
+      document.documentElement.setAttribute('data-theme', next);
     }
   }
 
