@@ -159,6 +159,10 @@ h1, h2, h3 {
   background: var(--accent);
 }
 
+.contact-eyebrow::before {
+  display: none;
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
