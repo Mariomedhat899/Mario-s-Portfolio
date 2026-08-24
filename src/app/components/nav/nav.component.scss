@@ -1,0 +1,187 @@
+:host { display: block; }
+
+/* CSS custom properties injected via Angular's global styles */
+
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: color-mix(in srgb, var(--ground) 78%, transparent);
+  border-bottom: 1px solid var(--line-soft);
+  transition: border-color .3s;
+}
+
+.nav-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 4vw, 48px);
+  height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 600;
+  font-size: .92rem;
+  letter-spacing: .02em;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.logo b { color: var(--accent); font-weight: 600; }
+
+/* Desktop nav links */
+.nav-links {
+  display: flex;
+  gap: 22px;
+  margin-left: auto;
+  flex: 1;
+  justify-content: flex-end;
+}
+.nav-links a {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: .76rem;
+  letter-spacing: .08em;
+  color: var(--muted);
+  position: relative;
+  padding: 4px 0;
+  transition: color .25s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: 0;
+  height: 1px; width: 0;
+  background: var(--accent);
+  transition: width .3s ease;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-links a:hover::after { width: 100%; }
+
+.uptime {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: .72rem;
+  color: var(--faint);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 22px;
+  border-left: 1px solid var(--line);
+  margin-left: 16px;
+}
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ok);
+  animation: pulse 2.2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 45%, transparent); }
+  55% { box-shadow: 0 0 0 6px transparent; }
+}
+
+.theme-btn {
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  transition: color .25s, border-color .25s, transform .3s;
+  flex-shrink: 0;
+}
+.theme-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  transform: rotate(-14deg);
+}
+.theme-btn svg { width: 18px; height: 18px; }
+.theme-btn .sun { display: none; }
+:host-context([data-theme="light"]) .theme-btn .sun { display: block; }
+:host-context([data-theme="light"]) .theme-btn .moon { display: none; }
+
+/* Mobile menu button */
+.mobile-menu-btn {
+  display: none;
+  width: 44px; height: 44px;
+  place-items: center;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.mobile-menu-btn svg { width: 22px; height: 22px; }
+
+/* Mobile menu panel */
+.mobile-menu {
+  display: none;
+  position: absolute;
+  top: 100%; left: 0; right: 0;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  padding: 16px clamp(16px, 4vw, 48px);
+  box-shadow: var(--shadow);
+  flex-direction: column;
+  gap: 12px;
+  z-index: 99;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1rem;
+  letter-spacing: .04em;
+  color: var(--text);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line-soft);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.mobile-menu a:last-child { border-bottom: none; }
+.mobile-divider {
+  height: 1px; background: var(--line);
+  margin: 8px 0;
+}
+.mobile-uptime {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: .8rem;
+  color: var(--muted);
+  display: flex; align-items: center; gap: 8px;
+  padding-top: 8px;
+}
+
+/* Desktop only utility */
+.desktop-only { display: flex; }
+
+#progress {
+  position: fixed; top: 0; left: 0;
+  height: 2px; width: 0%;
+  background: var(--accent);
+  z-index: 120; pointer-events: none;
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 760px) {
+  .desktop-only { display: none !important; }
+  .mobile-menu-btn { display: grid !important; }
+  .nav-links { display: none; }
+  .uptime { display: none; }
+  .nav-inner { gap: 12px; padding: 0 16px; }
+  .logo { font-size: .85rem; }
+}
+
+@media (max-width: 420px) {
+  .nav-inner { padding: 0 12px; }
+  .theme-btn { width: 40px; height: 40px; }
+  .mobile-menu-btn { width: 40px; height: 40px; }
+}

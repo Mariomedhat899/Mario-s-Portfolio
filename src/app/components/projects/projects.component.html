@@ -1,0 +1,50 @@
+<section class="block" id="work" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="eyebrow">// deployed work</div>
+        <h2>Systems in production shape</h2>
+      </div>
+      <p class="sec-note">four repositories,<br>each solving a real problem end-to-end</p>
+    </div>
+
+    <div class="proj-list">
+      @for (proj of projects; track proj.id) {
+        <article class="proj reveal" [class.open]="isOpen(proj.id)">
+          <div class="proj-top">
+            <div>
+              <h3>{{ proj.name }}</h3>
+              <div class="proj-meta">
+                @for (chip of proj.chips; track chip) {
+                  <span class="chip">{{ chip }}</span>
+                }
+              </div>
+            </div>
+            <div class="proj-right">
+              <span class="proj-year">{{ proj.year }}</span>
+              <button class="proj-toggle" (click)="toggle(proj.id)" [attr.aria-expanded]="isOpen(proj.id)">
+                details
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="proj-body" [style.max-height.px]="isOpen(proj.id) ? 1000 : 0">
+            <div class="proj-body-in">
+              <ul>
+                @for (detail of proj.details; track $index) {
+                  <li [innerHTML]="detail"></li>
+                }
+              </ul>
+              <div class="endpoint">
+                @for (ep of proj.endpoints; track $index) {
+                  <div [innerHTML]="ep"></div>
+                }
+                <a [href]="proj.repoUrl" target="_blank" rel="noopener" style="color:var(--accent)">↗ repo</a>
+              </div>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>

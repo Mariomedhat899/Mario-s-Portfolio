@@ -1,0 +1,31 @@
+<section class="block contact" id="contact" style="padding-top:20px">
+  <div class="wrap">
+    <div class="eyebrow reveal">// handshake</div>
+    <div style="margin-top:30px" class="reveal">
+      <span class="t-dim mono" style="font-size:.8rem;display:block;margin-bottom:14px">$ curl -X POST mario/contact \</span>
+      <a class="mail-link" href="mailto:mariomedhat899@gmail.com">mariomedhat899<wbr>@gmail.com</a>
+    </div>
+    <button class="copy-btn reveal" (click)="copyMail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      {{ copied() ? 'copied!' : 'copy email' }}
+    </button>
+
+    <div class="contact-rows reveal">
+      <a class="c-cell" href="https://github.com/Mariomedhat899" target="_blank" rel="noopener">
+        <div class="k">github</div><div class="v">@Mariomedhat899 ↗</div>
+      </a>
+      <a class="c-cell" href="https://linkedin.com/in/mario-medhat" target="_blank" rel="noopener">
+        <div class="k">linkedin</div><div class="v">/in/mario-medhat ↗</div>
+      </a>
+      <a class="c-cell" href="assets/Mario-Medhat-Software-Developer-Resume.pdf" download="Mario-Medhat-Resume.pdf" target="_blank" rel="noopener">
+        <div class="k">cv</div><div class="v">Download PDF ↗</div>
+      </a>
+      <div class="c-cell">
+        <div class="k">phone</div><div class="v">+20 103 024 5628</div>
+      </div>
+      <div class="c-cell">
+        <div class="k">location</div><div class="v">Egypt · open to remote</div>
+      </div>
+    </div>
+  </div>
+</section>

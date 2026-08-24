@@ -1,0 +1,8 @@
+:host { display: block; }
+
+footer {
+  border-top: 1px solid var(--line-soft); padding: 26px 0 34px;
+  display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  font-family: "IBM Plex Mono", monospace; font-size: .72rem; color: var(--faint); letter-spacing: .05em;
+}
+footer a:hover { color: var(--accent); }

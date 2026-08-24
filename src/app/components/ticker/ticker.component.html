@@ -1,0 +1,14 @@
+<div class="ticker-wrap" aria-hidden="true">
+  <span class="ticker-head">live · localhost:5271</span>
+  <div id="ticker">
+    @for (log of logs(); track $index) {
+      <div class="log-row">
+        <span class="l-time">{{ log.time }}</span>
+        <span class="l-method">{{ log.method }}</span>
+        <span class="l-code" [class]="log.kind">{{ log.code }}</span>
+        <span class="l-path">{{ log.path }}</span>
+        <span class="l-ms">{{ log.ms }}ms</span>
+      </div>
+    }
+  </div>
+</div>

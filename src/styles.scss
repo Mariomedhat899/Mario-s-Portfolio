@@ -1,0 +1,457 @@
+/* ==========================================================================
+   MARIO MEDHAT PORTFOLIO — Global Styles & Design Tokens
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+/* ---------- Design Tokens (Dark-first: bare :root = dark) ---------- */
+:root {
+  /* Core surfaces */
+  --ground: #0b0e14;
+  --panel: #121722;
+  --panel-2: #161d2b;
+
+  /* Lines & borders */
+  --line: #232b3d;
+  --line-soft: #1a2130;
+
+  /* Text hierarchy */
+  --text: #e9edf5;
+  --muted: #8b95a9;
+  --faint: #5c6577;
+
+  /* Accents */
+  --accent: #f0a43c;
+  --accent-dim: rgba(240, 164, 60, 0.14);
+  --data: #5fc4dc;
+
+  /* Semantic (status only) */
+  --ok: #57c98b;
+  --err: #e5636f;
+  --warn: #f0a43c;
+
+  /* Shadow */
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* Light theme via prefers-color-scheme (system default, no explicit data-theme) */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --ground: #eff1f5;
+    --panel: #ffffff;
+    --panel-2: #f5f7fa;
+    --line: #d7dce6;
+    --line-soft: #e4e8ef;
+    --text: #171c26;
+    --muted: #5b6577;
+    --faint: #9aa3b3;
+    --accent: #b06f0a;
+    --accent-dim: rgba(176, 111, 10, 0.11);
+    --data: #177e9c;
+    --ok: #1e8a55;
+    --err: #c24550;
+    --shadow: 0 20px 50px rgba(23, 28, 38, 0.10);
+  }
+}
+
+/* Explicit light theme toggle */
+:root[data-theme="light"] {
+  --ground: #eff1f5;
+  --panel: #ffffff;
+  --panel-2: #f5f7fa;
+  --line: #d7dce6;
+  --line-soft: #e4e8ef;
+  --text: #171c26;
+  --muted: #5b6577;
+  --faint: #9aa3b3;
+  --accent: #b06f0a;
+  --accent-dim: rgba(176, 111, 10, 0.11);
+  --data: #177e9c;
+  --ok: #1e8a55;
+  --err: #c24550;
+  --shadow: 0 20px 50px rgba(23, 28, 38, 0.10);
+}
+
+/* ---------- Global Base ---------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ground);
+  color: var(--text);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--ground);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.mono {
+  font-family: "IBM Plex Mono", ui-monospace, "Cascadia Code", monospace;
+}
+
+/* Typography helpers */
+h1, h2, h3 {
+  font-family: "Archivo", sans-serif;
+  text-wrap: balance;
+  font-stretch: 115%;
+}
+
+/* Reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity .7s ease, transform .7s cubic-bezier(.22, .8, .3, 1);
+}
+
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Eyebrow label utility */
+.eyebrow {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.eyebrow::before {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: var(--accent);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001s !important;
+  }
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* ==========================================================================
+   MOBILE-FIRST RESPONSIVE UTILITIES
+   ========================================================================== */
+
+/* Container / wrap */
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 4vw, 48px);
+}
+
+/* Touch targets minimum 44x44 */
+button, a.btn, .chip, .s-chip, .proj-toggle, .theme-btn, .copy-btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Mobile nav adjustments */
+@media (max-width: 760px) {
+  .nav-links {
+    gap: 12px !important;
+  }
+  .nav-links a {
+    font-size: .7rem !important;
+    padding: 8px 4px !important;
+  }
+  .uptime { display: none !important; }
+}
+
+/* Hero mobile */
+@media (max-width: 640px) {
+  .hero {
+    padding: 100px 0 60px !important;
+    min-height: auto !important;
+  }
+  .hero-grid {
+    gap: 28px !important;
+    padding: 0 16px !important;
+  }
+  .hero-content {
+    text-align: center;
+    align-items: center;
+  }
+  .status-pill {
+    margin: 0 auto 20px !important;
+  }
+  .role-line {
+    font-size: .38em !important;
+    max-width: 90%;
+    margin: 10px auto 0 !important;
+  }
+  .lede {
+    font-size: .95rem !important;
+    text-align: center;
+    max-width: 100% !important;
+  }
+  .hero-cta {
+    justify-content: center !important;
+    flex-wrap: wrap;
+    gap: 10px !important;
+  }
+  .btn {
+    padding: 12px 20px !important;
+    font-size: .78rem !important;
+  }
+  .term-body {
+    min-height: 200px !important;
+    font-size: .75rem !important;
+  }
+}
+
+/* Section spacing mobile */
+@media (max-width: 640px) {
+  .block {
+    padding: 60px 0 !important;
+  }
+  .sec-head {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    margin-bottom: 32px !important;
+  }
+  .sec-note {
+    text-align: left !important;
+    max-width: 100% !important;
+    font-size: .68rem !important;
+  }
+}
+
+/* About mobile */
+@media (max-width: 640px) {
+  .about-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  .about-big {
+    max-width: 100% !important;
+    font-size: 1.2rem !important;
+    text-align: center;
+  }
+  .about-side {
+    max-width: 100% !important;
+    font-size: .9rem !important;
+  }
+  .fact-row {
+    justify-content: center;
+    gap: 8px !important;
+  }
+  .fact-row b {
+    min-width: auto !important;
+  }
+}
+
+/* Projects mobile */
+@media (max-width: 640px) {
+  .proj {
+    padding: 24px 0 20px !important;
+  }
+  .proj-top {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .proj-right {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    width: 100%;
+    align-items: center !important;
+  }
+  .proj-meta {
+    gap: 6px !important;
+  }
+  .chip {
+    font-size: .62rem !important;
+    padding: 3px 10px !important;
+  }
+  .proj-body-in {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    padding-top: 16px !important;
+  }
+  .proj li {
+    font-size: .88rem !important;
+    padding-left: 18px !important;
+  }
+  .endpoint {
+    font-size: .68rem !important;
+    padding: 8px 0 8px 12px !important;
+    border-left: none !important;
+    border-top: 1px dashed var(--line) !important;
+  }
+}
+
+/* Stack mobile */
+@media (max-width: 640px) {
+  .stack-row {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 18px 0 !important;
+  }
+  .stack-label {
+    font-size: .68rem !important;
+    padding-top: 0 !important;
+  }
+  .s-chip {
+    font-size: .72rem !important;
+    padding: 6px 12px !important;
+  }
+}
+
+/* Education mobile */
+@media (max-width: 640px) {
+  .edu-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .edu-card {
+    padding: 22px 20px !important;
+  }
+}
+
+/* Contact mobile */
+@media (max-width: 640px) {
+  .mail-link {
+    font-size: 1.4rem !important;
+    word-break: break-all;
+  }
+  .contact-rows {
+    grid-template-columns: 1fr !important;
+    gap: 1px !important;
+  }
+  .c-cell {
+    padding: 18px 20px !important;
+  }
+  .copy-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Footer mobile */
+@media (max-width: 640px) {
+  footer {
+    flex-direction: column;
+    gap: 8px !important;
+    text-align: center;
+    padding: 20px 0 28px !important;
+  }
+}
+
+/* Ticker mobile */
+@media (max-width: 640px) {
+  #ticker {
+    height: 120px !important;
+  }
+  .log-row {
+    padding: 0 16px !important;
+    font-size: .68rem !important;
+    gap: 8px !important;
+  }
+  .ticker-head {
+    left: 16px !important;
+    font-size: .6rem !important;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 420px) {
+  .hero-cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hero-cta .btn {
+    text-align: center;
+    justify-content: center;
+  }
+  .proj-right {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  .nav-links {
+    gap: 8px !important;
+  }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero {
+    min-height: auto !important;
+    padding: 80px 0 !important;
+  }
+  .hero-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+  }
+  .term-body {
+    min-height: 160px !important;
+  }
+  .block {
+    padding: 40px 0 !important;
+  }
+}
+
+/* Prevent horizontal scroll */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Better touch scrolling */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure canvas fits container */
+canvas.net {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Form elements mobile friendly */
+input, textarea, select {
+  font-size: 16px !important; /* Prevents zoom on iOS */
+}

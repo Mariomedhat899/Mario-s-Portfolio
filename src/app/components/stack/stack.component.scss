@@ -1,0 +1,27 @@
+:host { display: block; }
+
+.stack-row {
+  display: grid; grid-template-columns: 250px 1fr; gap: 20px 40px;
+  padding: 26px 0; border-top: 1px solid var(--line); align-items: start;
+}
+.stack-row:last-of-type { border-bottom: 1px solid var(--line); }
+
+.stack-label {
+  font-family: "IBM Plex Mono", monospace; font-size: .76rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--accent); padding-top: 7px;
+}
+
+.stack-chips { display: flex; flex-wrap: wrap; gap: 9px; }
+
+.s-chip {
+  font-family: "IBM Plex Mono", monospace; font-size: .78rem;
+  border: 1px solid var(--line); background: color-mix(in srgb, var(--panel) 60%, transparent);
+  border-radius: 8px; padding: 7px 14px; color: var(--muted); cursor: default;
+  transition: all .25s;
+}
+.s-chip:hover {
+  border-color: var(--accent); color: var(--text); background: var(--accent-dim);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 720px) { .stack-row { grid-template-columns: 1fr; gap: 12px; } }
