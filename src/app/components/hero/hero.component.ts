@@ -1,4 +1,4 @@
-import { Component, effect, inject, PLATFORM_ID, signal, viewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, effect, inject, PLATFORM_ID, signal, viewChild, AfterViewInit, OnDestroy, ElementRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 @Component({
@@ -9,7 +9,7 @@ import { isPlatformBrowser } from '@angular/common';
 })
 export class HeroComponent implements AfterViewInit, OnDestroy {
   private platformId = inject(PLATFORM_ID);
-  private canvasRef = viewChild.required<HTMLCanvasElement>('netCanvas');
+  private canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('netCanvas');
   private canvas = signal<HTMLCanvasElement | null>(null);
   private animationId: number | null = null;
   private reduceMotion = false;
@@ -30,7 +30,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     if (!isPlatformBrowser(this.platformId)) return;
     this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    this.canvas.set(this.canvasRef());
+    this.canvas.set(this.canvasRef().nativeElement);
     this.initCanvas();
     this.runTerminal();
   }
