@@ -148,19 +148,6 @@ h1, h2, h3 {
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.eyebrow::before {
-  content: "";
-  width: 26px;
-  height: 1px;
-  background: var(--accent);
-}
-
-.contact-eyebrow::before {
-  display: none;
 }
 
 /* Respect reduced motion */
