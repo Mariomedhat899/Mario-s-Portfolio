@@ -102,7 +102,7 @@ h1 em { font-style: italic; color: var(--accent); -webkit-text-fill-color: var(-
 .btn-primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #120d06;
+  color: var(--ground);
   box-shadow: 0 4px 24px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 .btn-primary:hover {
