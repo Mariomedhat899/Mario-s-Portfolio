@@ -46,7 +46,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
     let W = 0, H = 0, dpr = 1;
     let particles: any[] = [];
     let time = 0;
-    const mouse = { x: -9999, y: -9999, active: false, trail: [] };
+    const mouse = { x: -9999, y: -9999, active: false, trail: [] as Array<{x:number;y:number;life:number}> };
 
     const getTokens = () => {
       const cs = getComputedStyle(document.documentElement);
@@ -113,8 +113,8 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
       // Mouse trail
       if (mouse.trail.length > 1) {
         for (let i = 0; i < mouse.trail.length - 1; i++) {
-          const p1 = mouse.trail[i];
-          const p2 = mouse.trail[i + 1];
+          const p1 = mouse.trail[i] as {x:number;y:number;life:number};
+          const p2 = mouse.trail[i + 1] as {x:number;y:number;life:number};
           const alpha = (p1.life * p2.life) * 0.15;
           const grad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
           grad.addColorStop(0, `rgba(200, 107, 62, ${alpha})`);
@@ -127,7 +127,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
           ctx.lineTo(p2.x, p2.y);
           ctx.stroke();
         }
-        mouse.trail = mouse.trail.map(p => ({ ...p, life: p.life - 0.08 })).filter(p => p.life > 0);
+        mouse.trail = mouse.trail.map(p => ({ ...p, life: (p.life ?? 1) - 0.08 })).filter(p => p.life > 0) as Array<{x:number;y:number;life:number}>;
       }
 
       // Draw subtle field lines connecting nearby particles
@@ -233,7 +233,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
       ctx.arc(W / 2, H / 2, Math.min(W, H) * 0.35, 0, Math.PI * 2);
       ctx.fill();
 
-      this.animationId = requestAnimationFrame(frame);
+      this.animationId = requestAnimationFrame(frame) ?? 0;
     };
 
     build();
