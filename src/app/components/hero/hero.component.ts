@@ -44,16 +44,19 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
     if (!cv) return;
     const ctx = cv.getContext('2d')!;
     let W = 0, H = 0, dpr = 1;
-    let nodes: any[] = [], edges: any[] = [], packets: any[] = [];
-    const mouse = { x: -9999, y: -9999, active: false };
+    let particles: any[] = [];
+    let time = 0;
+    const mouse = { x: -9999, y: -9999, active: false, trail: [] };
 
     const getTokens = () => {
       const cs = getComputedStyle(document.documentElement);
       return {
-        node: cs.getPropertyValue('--muted').trim() || '#8b95a9',
-        accent: cs.getPropertyValue('--accent').trim() || '#f0a43c',
-        line: cs.getPropertyValue('--line').trim() || '#232b3d',
-        data: cs.getPropertyValue('--data').trim() || '#5fc4dc'
+        accent: cs.getPropertyValue('--accent').trim() || '#c86b3e',
+        accentGlow: cs.getPropertyValue('--accent-glow').trim() || 'rgba(200, 107, 62, 0.35)',
+        line: cs.getPropertyValue('--line').trim() || '#2e261d',
+        data: cs.getPropertyValue('--data').trim() || '#6ec4d1',
+        muted: cs.getPropertyValue('--muted').trim() || '#b8a992',
+        text: cs.getPropertyValue('--text').trim() || '#f5efe3',
       };
     };
     let C = getTokens();
@@ -65,87 +68,171 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
       cv.width = W * dpr; cv.height = H * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const count = W < 700 ? 16 : 26;
-      nodes = [];
+      particles = [];
+      const count = W < 700 ? 35 : 60;
       for (let i = 0; i < count; i++) {
-        nodes.push({
-          x: Math.random() * W,
-          y: Math.random() * H,
-          r: 1.4 + Math.random() * 2.2,
-          vx: (Math.random() - .5) * .16,
-          vy: (Math.random() - .5) * .16,
-          hub: Math.random() < .18
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * Math.min(W, H) * 0.45;
+        particles.push({
+          x: W / 2 + Math.cos(angle) * radius,
+          y: H / 2 + Math.sin(angle) * radius,
+          baseX: W / 2 + Math.cos(angle) * radius,
+          baseY: H / 2 + Math.sin(angle) * radius,
+          angle: angle,
+          radius: radius,
+          speed: 0.0003 + Math.random() * 0.0006,
+          orbitDir: Math.random() < 0.5 ? 1 : -1,
+          size: 0.8 + Math.random() * 2.2,
+          alpha: 0.15 + Math.random() * 0.35,
+          pulsePhase: Math.random() * Math.PI * 2,
+          pulseSpeed: 0.001 + Math.random() * 0.0025,
+          hueShift: Math.random() * 0.15,
+          isAccent: Math.random() < 0.12,
+          lineLen: 20 + Math.random() * 60,
+          lineAngle: Math.random() * Math.PI * 2,
+          lineSpeed: 0.0005 + Math.random() * 0.0015,
         });
-      }
-      edges = [];
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y;
-          const d = Math.hypot(dx, dy);
-          if (d < Math.min(W, H) * .34) edges.push({ a: i, b: j });
-        }
-      }
-      packets = [];
-      const nP = Math.min(edges.length, 22);
-      for (let i = 0; i < nP; i++) {
-        packets.push({ e: edges[Math.floor(Math.random() * edges.length)], t: Math.random(), sp: .003 + Math.random() * .007 });
       }
     };
 
     cv.parentElement?.addEventListener('mousemove', (e: MouseEvent) => {
       const r = cv.getBoundingClientRect();
-      mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; mouse.active = true;
+      mouse.x = e.clientX - r.left;
+      mouse.y = e.clientY - r.top;
+      mouse.active = true;
+      mouse.trail.push({ x: mouse.x, y: mouse.y, life: 1 });
+      if (mouse.trail.length > 12) mouse.trail.shift();
     });
     cv.parentElement?.addEventListener('mouseleave', () => { mouse.active = false; });
 
     const frame = () => {
       ctx.clearRect(0, 0, W, H);
       C = getTokens();
+      time += 1;
 
-      for (const n of nodes) {
-        n.x += n.vx; n.y += n.vy;
-        if (n.x < 0 || n.x > W) n.vx *= -1;
-        if (n.y < 0 || n.y > H) n.vy *= -1;
+      // Mouse trail
+      if (mouse.trail.length > 1) {
+        for (let i = 0; i < mouse.trail.length - 1; i++) {
+          const p1 = mouse.trail[i];
+          const p2 = mouse.trail[i + 1];
+          const alpha = (p1.life * p2.life) * 0.15;
+          const grad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+          grad.addColorStop(0, `rgba(200, 107, 62, ${alpha})`);
+          grad.addColorStop(1, `rgba(110, 196, 209, ${alpha * 0.5})`);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 1.5 * (i / mouse.trail.length);
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+        }
+        mouse.trail = mouse.trail.map(p => ({ ...p, life: p.life - 0.08 })).filter(p => p.life > 0);
+      }
+
+      // Draw subtle field lines connecting nearby particles
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const p1 = particles[i];
+          const p2 = particles[j];
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const dist = Math.hypot(dx, dy);
+          const maxDist = Math.min(W, H) * 0.18;
+          if (dist < maxDist) {
+            const alpha = (1 - dist / maxDist) * 0.08;
+            ctx.strokeStyle = p1.isAccent || p2.isAccent
+              ? `rgba(200, 107, 62, ${alpha})`
+              : `rgba(184, 169, 146, ${alpha * 0.6})`;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Update and draw particles
+      for (const p of particles) {
+        // Orbital motion with subtle perturbation
+        p.angle += p.speed * p.orbitDir;
+        const targetX = W / 2 + Math.cos(p.angle) * p.radius;
+        const targetY = H / 2 + Math.sin(p.angle) * p.radius;
+
+        // Mouse influence - gentle repulsion
         if (mouse.active) {
-          const dx = n.x - mouse.x, dy = n.y - mouse.y, d = Math.hypot(dx, dy);
-          if (d < 140 && d > 0) { n.x += dx / d * (140 - d) * .012; n.y += dy / d * (140 - d) * .012; }
+          const dx = p.x - mouse.x;
+          const dy = p.y - mouse.y;
+          const d = Math.hypot(dx, dy);
+          if (d < 180 && d > 0) {
+            const force = (180 - d) / 180 * 0.8;
+            p.x += (dx / d) * force;
+            p.y += (dy / d) * force;
+          }
         }
-      }
 
-      ctx.lineWidth = 1;
-      for (const e of edges) {
-        const a = nodes[e.a], b = nodes[e.b];
-        const d = Math.hypot(a.x - b.x, a.y - b.y);
-        const alpha = Math.max(0, 1 - d / (Math.min(W, H) * .4)) * .35;
-        ctx.strokeStyle = C.line;
-        ctx.globalAlpha = alpha;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-      }
+        // Spring back to orbit
+        p.x += (targetX - p.x) * 0.008;
+        p.y += (targetY - p.y) * 0.008;
 
-      ctx.globalAlpha = 1;
-      for (const p of packets) {
-        p.t += p.sp;
-        if (p.t >= 1) { p.e = edges[Math.floor(Math.random() * edges.length)]; p.t = 0; continue; }
-        const a = nodes[p.e.a], b = nodes[p.e.b];
-        const x = a.x + (b.x - a.x) * p.t, y = a.y + (b.y - a.y) * p.t;
-        const g = ctx.createRadialGradient(x, y, 0, x, y, 9);
-        g.addColorStop(0, C.accent); g.addColorStop(1, 'rgba(240,164,60,0)');
-        ctx.fillStyle = g;
-        ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = C.accent;
-        ctx.beginPath(); ctx.arc(x, y, 1.8, 0, Math.PI * 2); ctx.fill();
-      }
+        // Pulse
+        p.pulsePhase += p.pulseSpeed;
+        const pulse = 0.7 + 0.3 * Math.sin(p.pulsePhase);
+        const currentSize = p.size * pulse;
+        const currentAlpha = p.alpha * pulse;
 
-      for (const n of nodes) {
-        ctx.fillStyle = n.hub ? C.accent : C.node;
-        ctx.globalAlpha = n.hub ? .9 : .5;
-        ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx.fill();
-        if (n.hub) {
-          ctx.globalAlpha = .18;
-          ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 5, 0, Math.PI * 2); ctx.fill();
+        // Rotating line emanating from particle
+        p.lineAngle += p.lineSpeed;
+
+        // Draw particle
+        const isAccent = p.isAccent;
+        const baseColor = isAccent ? C.accent : C.muted;
+        const glowColor = isAccent ? C.accentGlow : 'rgba(184, 169, 146, 0.2)';
+
+        // Outer glow
+        if (isAccent) {
+          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, currentSize * 6);
+          g.addColorStop(0, glowColor);
+          g.addColorStop(1, 'rgba(200, 107, 62, 0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, currentSize * 6, 0, Math.PI * 2);
+          ctx.fill();
         }
+
+        // Core
+        ctx.fillStyle = baseColor;
+        ctx.globalAlpha = currentAlpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, currentSize, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rotating spoke
+        ctx.globalAlpha = currentAlpha * 0.4;
+        ctx.strokeStyle = baseColor;
+        ctx.lineWidth = 0.8;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(
+          p.x + Math.cos(p.lineAngle) * p.lineLen,
+          p.y + Math.sin(p.lineAngle) * p.lineLen
+        );
+        ctx.stroke();
+
+        ctx.globalAlpha = 1;
       }
-      ctx.globalAlpha = 1;
+
+      // Center subtle glow
+      const centerGlow = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.min(W, H) * 0.35);
+      centerGlow.addColorStop(0, 'rgba(200, 107, 62, 0.04)');
+      centerGlow.addColorStop(1, 'rgba(200, 107, 62, 0)');
+      ctx.fillStyle = centerGlow;
+      ctx.beginPath();
+      ctx.arc(W / 2, H / 2, Math.min(W, H) * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+
       this.animationId = requestAnimationFrame(frame);
     };
 
