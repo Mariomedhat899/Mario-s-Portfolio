@@ -2,10 +2,10 @@
   <div class="wrap">
     <div class="sec-head reveal">
       <div>
-        <div class="eyebrow">// deployed work</div>
-        <h2>Systems in production shape</h2>
+        <div class="eyebrow">// the work</div>
+        <h2>Things I actually finished</h2>
       </div>
-      <p class="sec-note">four repositories,<br>each solving a real problem end-to-end</p>
+      <p class="sec-note">four repos,<br>each born from a real annoyance</p>
     </div>
 
     <div class="proj-list">
@@ -14,6 +14,7 @@
           <div class="proj-top">
             <div>
               <h3>{{ proj.name }}</h3>
+              <p class="why">{{ proj.why }}</p>
               <div class="proj-meta">
                 @for (chip of proj.chips; track chip) {
                   <span class="chip">{{ chip }}</span>
@@ -23,7 +24,7 @@
             <div class="proj-right">
               <span class="proj-year">{{ proj.year }}</span>
               <button class="proj-toggle" (click)="toggle(proj.id)" [attr.aria-expanded]="isOpen(proj.id)">
-                details
+                how it works
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
               </button>
             </div>

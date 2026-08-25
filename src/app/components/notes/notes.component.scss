@@ -1,0 +1,38 @@
+:host { display: block; }
+
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.note {
+  border-top: 1px solid var(--line);
+  padding: 22px 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.note:last-child { border-bottom: 1px solid var(--line); }
+
+.note .n {
+  font-family: "Archivo", sans-serif;
+  font-style: italic;
+  font-stretch: 110%;
+  font-size: 1.6rem;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.note p {
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.65;
+  max-width: 62ch;
+}
+.note p b { color: var(--text); font-weight: 600; }
+
+@media (max-width: 620px) {
+  .note { grid-template-columns: 1fr; gap: 6px; }
+}

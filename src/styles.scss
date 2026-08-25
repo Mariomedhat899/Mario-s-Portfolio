@@ -2,74 +2,74 @@
    MARIO MEDHAT PORTFOLIO — Global Styles & Design Tokens
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 /* ---------- Design Tokens (Dark-first: bare :root = dark) ---------- */
 :root {
-  /* Core surfaces */
-  --ground: #0b0e14;
-  --panel: #121722;
-  --panel-2: #161d2b;
+  /* Core surfaces — warmer, less clinical */
+  --ground: #0c0a09;
+  --panel: #16120e;
+  --panel-2: #1c1712;
 
   /* Lines & borders */
-  --line: #232b3d;
-  --line-soft: #1a2130;
+  --line: #2a231c;
+  --line-soft: #211b16;
 
   /* Text hierarchy */
-  --text: #e9edf5;
-  --muted: #8b95a9;
-  --faint: #5c6577;
+  --text: #f3ece1;
+  --muted: #a89c8b;
+  --faint: #6f6557;
 
-  /* Accents */
-  --accent: #f0a43c;
-  --accent-dim: rgba(240, 164, 60, 0.14);
-  --data: #5fc4dc;
+  /* Accents — amber/ochre instead of generic orange */
+  --accent: #e8924a;
+  --accent-dim: rgba(232, 146, 74, 0.13);
+  --data: #7fb7c4;
 
   /* Semantic (status only) */
-  --ok: #57c98b;
-  --err: #e5636f;
-  --warn: #f0a43c;
+  --ok: #8bbf86;
+  --err: #cf7a72;
+  --warn: #e8924a;
 
   /* Shadow */
-  --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.5);
 }
 
 /* Light theme via prefers-color-scheme (system default, no explicit data-theme) */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --ground: #eff1f5;
-    --panel: #ffffff;
-    --panel-2: #f5f7fa;
-    --line: #d7dce6;
-    --line-soft: #e4e8ef;
-    --text: #171c26;
-    --muted: #5b6577;
-    --faint: #9aa3b3;
-    --accent: #b06f0a;
-    --accent-dim: rgba(176, 111, 10, 0.11);
-    --data: #177e9c;
-    --ok: #1e8a55;
-    --err: #c24550;
-    --shadow: 0 20px 50px rgba(23, 28, 38, 0.10);
+    --ground: #f4efe6;
+    --panel: #fffaf2;
+    --panel-2: #f7f1e7;
+    --line: #ddd2c1;
+    --line-soft: #e7ddcd;
+    --text: #221c15;
+    --muted: #5e5547;
+    --faint: #9b9080;
+    --accent: #b86a2a;
+    --accent-dim: rgba(184, 106, 42, 0.12);
+    --data: #2f7d8c;
+    --ok: #3c7a4e;
+    --err: #b35047;
+    --shadow: 0 22px 55px rgba(34, 28, 21, 0.12);
   }
 }
 
 /* Explicit light theme toggle */
 :root[data-theme="light"] {
-  --ground: #eff1f5;
-  --panel: #ffffff;
-  --panel-2: #f5f7fa;
-  --line: #d7dce6;
-  --line-soft: #e4e8ef;
-  --text: #171c26;
-  --muted: #5b6577;
-  --faint: #9aa3b3;
-  --accent: #b06f0a;
-  --accent-dim: rgba(176, 111, 10, 0.11);
-  --data: #177e9c;
-  --ok: #1e8a55;
-  --err: #c24550;
-  --shadow: 0 20px 50px rgba(23, 28, 38, 0.10);
+  --ground: #f4efe6;
+  --panel: #fffaf2;
+  --panel-2: #f7f1e7;
+  --line: #ddd2c1;
+  --line-soft: #e7ddcd;
+  --text: #221c15;
+  --muted: #5e5547;
+  --faint: #9b9080;
+  --accent: #b86a2a;
+  --accent-dim: rgba(184, 106, 42, 0.12);
+  --data: #2f7d8c;
+  --ok: #3c7a4e;
+  --err: #b35047;
+  --shadow: 0 22px 55px rgba(34, 28, 21, 0.12);
 }
 
 /* ---------- Global Base ---------- */
@@ -88,9 +88,20 @@ body {
   color: var(--text);
   font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.62;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+
+/* Analog grain overlay — kills the "too clean" AI feel */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection {
@@ -125,13 +136,13 @@ button {
 h1, h2, h3 {
   font-family: "Archivo", sans-serif;
   text-wrap: balance;
-  font-stretch: 115%;
+  font-stretch: 112%;
 }
 
 /* Reveal animation */
 .reveal {
   opacity: 0;
-  transform: translateY(26px);
+  transform: translateY(22px);
   transition: opacity .7s ease, transform .7s cubic-bezier(.22, .8, .3, 1);
 }
 
@@ -145,7 +156,7 @@ h1, h2, h3 {
   font-family: "IBM Plex Mono", monospace;
   font-size: .72rem;
   font-weight: 600;
-  letter-spacing: .18em;
+  letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--accent);
   display: flex;
@@ -168,6 +179,7 @@ h1, h2, h3 {
   }
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; }
+  body::after { display: none; }
 }
 
 /* ==========================================================================
@@ -176,7 +188,7 @@ h1, h2, h3 {
 
 /* Container / wrap */
 .wrap {
-  max-width: 1120px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 0 clamp(16px, 4vw, 48px);
 }

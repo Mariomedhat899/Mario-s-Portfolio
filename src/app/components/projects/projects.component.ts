@@ -4,6 +4,7 @@ interface Project {
   id: string;
   name: string;
   year: string;
+  why: string;
   chips: string[];
   details: string[];
   endpoints: string[];
@@ -24,11 +25,12 @@ export class ProjectsComponent {
       id: 'smartdocqna',
       name: 'SmartDocQna',
       year: '2026',
-      chips: ['ASP.NET Core', 'RAG Pipeline', 'Ollama', 'Vector Search'],
+      why: 'I was paying to ask questions of my own notes. So I stopped — and made a thing that answers from a PDF, offline, for free.',
+      chips: ['ASP.NET Core', 'RAG', 'Ollama', 'Vector Search'],
       details: [
-        'End-to-end local RAG: PDF ingestion, paragraph-aware chunking, embedding generation, cosine-similarity vector search — fully grounded answers, no external API dependencies.',
-        'Ollama models integrated over raw HTTP: <span class="t-data">nomic-embed-text</span> for embeddings, <span class="t-data">qwen2.5-coder:7b</span> for chat.',
-        'Responsive chat UI with real-time document loading, designed for local-first deployment.'
+        'End-to-end local RAG: PDF in, paragraph-aware chunks, embeddings, cosine-similarity search. <b>Answers stay grounded in the document — no hallucinated facts.</b>',
+        'Ollama over raw HTTP: <span class="mono t-data">nomic-embed-text</span> for embeddings, <span class="mono t-data">qwen2.5-coder:7b</span> for chat. Zero cloud, zero keys.',
+        'Responsive chat UI built for local-first use — it runs on my machine and that\'s the point.'
       ],
       endpoints: ['POST /api/ask', 'GET /health'],
       repoUrl: 'https://github.com/Mariomedhat899/SmartDocQna'
@@ -37,12 +39,13 @@ export class ProjectsComponent {
       id: 'ims-backend',
       name: 'IMS-Backend',
       year: '2026',
+      why: 'A friend\'s shop kept running out of stock by surprise. The only feature he uses is the email that says "buy more, today."',
       chips: ['ASP.NET Core', 'EF Core', 'SQL Server', 'Identity', 'SMTP'],
       details: [
-        'Full inventory API: CRUD for products & categories, transaction tracking, and a Low Stock Alerts system that watches thresholds for you.',
-        'Secure auth with ASP.NET Core Identity — role-based authorization with a seeder for admin/user roles.',
-        'CSV import/export for bulk operations, plus reports built for actual business insight.',
-        'SMTP notifications via <span class="t-data">IEmailService</span> and NotificationSettings keep the owner updated in real time; payments workflow kept cleanly separated.'
+        'Inventory API: products & categories, transaction tracking, and a <b>Low Stock Alerts</b> system that watches thresholds so a human doesn\'t have to.',
+        'Auth via ASP.NET Core Identity — role-based, with a seeder that sets up admin/user on first run.',
+        'CSV import/export for bulk work, plus reports that a shop owner would actually read.',
+        'SMTP notifications through <span class="mono t-data">IEmailService</span> — the owner gets the email before he notices the gap.'
       ],
       endpoints: ['GET /api/products', 'POST /api/auth/register'],
       repoUrl: 'https://github.com/Mariomedhat899/InventoryManagementAPI'
@@ -51,24 +54,26 @@ export class ProjectsComponent {
       id: 'roknacafe-pos',
       name: 'RoknaCafe-POS',
       year: '2026',
+      why: 'Every café POS I found treated Arabic as an afterthought. So I built one that\'s RTL first, receipts and all.',
       chips: ['.NET 10', 'WinForms', 'EF Core', 'SQLite', 'Clean Architecture'],
       details: [
-        'Complete café POS desktop app with a full Arabic RTL interface, real-time order building, and 80mm thermal receipt printing.',
-        'Paid-orders viewer with date filtering, daily totals and item breakdowns via ListView and MonthCalendar.',
-        'Solution structured across Domain, Infrastructure and UI layers with Repository Pattern; EF Core + SQLite handling persistence, migrations and seeding.'
+        'Full café POS desktop app, <b>full Arabic RTL</b>, real-time order building, 80mm thermal receipt printing.',
+        'Paid-orders view with date filtering, daily totals and item breakdowns via ListView + MonthCalendar.',
+        'Layered Domain / Infrastructure / UI with Repository Pattern; EF Core + SQLite handle persistence, migrations and seeding.'
       ],
-      endpoints: ['desktop · win-x64', 'db · sqlite/ef-core'],
+      endpoints: ['desktop · win-x64', 'db · sqlite / ef-core'],
       repoUrl: 'https://github.com/Mariomedhat899/RoknaCafe-POS'
     },
     {
       id: 'aimemory',
       name: 'AiMemory',
       year: '2026',
-      chips: ['.NET 8', 'Web API', 'SQL Server', 'AI Integration'],
+      why: 'My "let\'s do architecture properly" repo. I\'d delete half of it today — and that\'s the point of keeping it public.',
+      chips: ['.NET 8', 'Web API', 'SQL Server', 'AI'],
       details: [
-        '.NET 8 API handling complex task-domain logic and data relationships, written to coding best practices throughout.',
-        'AI features woven into the task workflow; SQL Server queries profiled and optimized for persistence performance.',
-        'Clean Architecture keeps components testable, modular and maintainable.'
+        '.NET 8 task API with AI woven into the workflow; the place I learned to <b>profile SQL before blaming the ORM</b>.',
+        'Clean Architecture throughout — testable, modular, maybe a layer too many. Honest.',
+        'If I rewrote it tomorrow it\'d be smaller. That gap is how I know I got better.'
       ],
       endpoints: ['GET /api/tasks', 'PUT /api/tasks/:id'],
       repoUrl: 'https://github.com/Mariomedhat899/AiMemory'

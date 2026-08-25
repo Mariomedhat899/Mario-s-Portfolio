@@ -3,16 +3,16 @@
     <div class="sec-head reveal">
       <div>
         <div class="eyebrow">// dependencies</div>
-        <h2>The toolkit</h2>
+        <h2>What's in my toolbox</h2>
       </div>
-      <p class="sec-note">hover anything —<br>it's all hands-on, not résumé filler</p>
+      <p class="sec-note">top row: daily driver<br>bottom row: on the list</p>
     </div>
 
     <div class="reveal">
       <div class="stack-row">
         <div class="stack-label">Back-end & Desktop</div>
         <div class="stack-chips">
-          @for (chip of ['.NET Core / 8 / 10', 'ASP.NET Core Web API', 'ASP.NET Core MVC', 'WinForms', 'EF Core', 'LINQ']; track chip) {
+          @for (chip of ['.NET 8 / 10', 'ASP.NET Core Web API', 'ASP.NET Core MVC', 'WinForms', 'EF Core', 'LINQ']; track chip) {
             <span class="s-chip">{{ chip }}</span>
           }
         </div>
@@ -28,13 +28,13 @@
       <div class="stack-row">
         <div class="stack-label">Architecture</div>
         <div class="stack-chips">
-          @for (chip of ['Clean Architecture', 'SOLID', 'OOP', 'Dependency Injection', 'Repository Pattern', 'Unit of Work', 'Specification Pattern']; track chip) {
+          @for (chip of ['Clean Architecture', 'SOLID', 'Repository Pattern', 'Unit of Work', 'Specification Pattern', 'DI']; track chip) {
             <span class="s-chip">{{ chip }}</span>
           }
         </div>
       </div>
       <div class="stack-row">
-        <div class="stack-label">Tools & Integrations</div>
+        <div class="stack-label">Tools</div>
         <div class="stack-chips">
           @for (chip of ['Git', 'GitHub', 'Postman', 'AutoMapper', 'Swagger / OpenAPI', 'Visual Studio', 'SMTP']; track chip) {
             <span class="s-chip">{{ chip }}</span>
@@ -44,8 +44,16 @@
       <div class="stack-row">
         <div class="stack-label">AI & RAG</div>
         <div class="stack-chips">
-          @for (chip of ['Ollama', 'Embeddings', 'Vector Search', 'Cosine Similarity', 'LLMs', 'RAG Pipeline', 'AI Integration']; track chip) {
+          @for (chip of ['Ollama', 'Embeddings', 'Vector Search', 'Cosine Similarity', 'Local LLMs', 'RAG Pipeline']; track chip) {
             <span class="s-chip">{{ chip }}</span>
+          }
+        </div>
+      </div>
+      <div class="stack-row">
+        <div class="stack-label">Want to learn</div>
+        <div class="stack-chips">
+          @for (chip of ['Docker', 'Redis', 'Angular', 'gRPC', 'PostgreSQL']; track chip) {
+            <span class="s-chip want">{{ chip }}</span>
           }
         </div>
       </div>
