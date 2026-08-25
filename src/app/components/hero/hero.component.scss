@@ -2,10 +2,13 @@
 
 .hero {
   position: relative;
+  height: 100vh;
   min-height: 100svh;
+  max-height: 100svh;
   display: flex;
   align-items: center;
-  padding: 120px 0 80px;
+  justify-content: center;
+  padding: clamp(60px, 8vh, 100px) 0 clamp(40px, 5vh, 80px);
   overflow: hidden;
 }
 

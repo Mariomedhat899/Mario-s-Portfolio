@@ -1,6 +1,34 @@
 import { Component, effect, inject, PLATFORM_ID, signal, viewChild, AfterViewInit, OnDestroy, ElementRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
+interface Particle {
+  x: number;
+  y: number;
+  baseX: number;
+  baseY: number;
+  angle: number;
+  radius: number;
+  speed: number;
+  orbitDir: number;
+  size: number;
+  alpha: number;
+  pulsePhase: number;
+  pulseSpeed: number;
+  isAccent: boolean;
+  lineLen: number;
+  lineAngle: number;
+  lineSpeed: number;
+}
+
+interface ColorTokens {
+  accent: string;
+  accentGlow: string;
+  line: string;
+  data: string;
+  muted: string;
+  text: string;
+}
+
 @Component({
   selector: 'app-hero',
   imports: [],
@@ -27,6 +55,25 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
     {html: '➜ ~ <span class="caret"></span>', hold: true}
   ];
 
+  // Pre-computed values to avoid allocations in render loop
+  private particles: Particle[] = [];
+  private mouse = { x: -9999, y: -9999, active: false, trail: [] as Array<{x:number;y:number;life:number}> };
+  private colorTokens: ColorTokens = {
+    accent: '#c86b3e',
+    accentGlow: 'rgba(200, 107, 62, 0.35)',
+    line: '#2e261d',
+    data: '#6ec4d1',
+    muted: '#b8a992',
+    text: '#f5efe3'
+  };
+  private W = 0;
+  private H = 0;
+  private dpr = 1;
+  private ctx: CanvasRenderingContext2D | null = null;
+  private lastResizeTime = 0;
+  private resizeDebounce = false;
+  private gradientCache = new Map<string, CanvasGradient>();
+
   ngAfterViewInit() {
     if (!isPlatformBrowser(this.platformId)) return;
     this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -37,209 +84,246 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.animationId) cancelAnimationFrame(this.animationId);
+    window.removeEventListener('resize', this.debouncedResize.bind(this));
   }
 
   private initCanvas() {
     const cv = this.canvas();
     if (!cv) return;
-    const ctx = cv.getContext('2d')!;
-    let W = 0, H = 0, dpr = 1;
-    let particles: any[] = [];
-    let time = 0;
-    const mouse = { x: -9999, y: -9999, active: false, trail: [] as Array<{x:number;y:number;life:number}> };
+    this.ctx = cv.getContext('2d')!;
+    this.build();
 
-    const getTokens = () => {
-      const cs = getComputedStyle(document.documentElement);
-      return {
-        accent: cs.getPropertyValue('--accent').trim() || '#c86b3e',
-        accentGlow: cs.getPropertyValue('--accent-glow').trim() || 'rgba(200, 107, 62, 0.35)',
-        line: cs.getPropertyValue('--line').trim() || '#2e261d',
-        data: cs.getPropertyValue('--data').trim() || '#6ec4d1',
-        muted: cs.getPropertyValue('--muted').trim() || '#b8a992',
-        text: cs.getPropertyValue('--text').trim() || '#f5efe3',
-      };
-    };
-    let C = getTokens();
+    cv.parentElement?.addEventListener('mousemove', this.onMouseMove.bind(this));
+    cv.parentElement?.addEventListener('mouseleave', this.onMouseLeave.bind(this));
+    window.addEventListener('resize', this.debouncedResize.bind(this), { passive: true });
 
-    const build = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const rect = cv.getBoundingClientRect();
-      W = rect.width; H = rect.height;
-      cv.width = W * dpr; cv.height = H * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.frame();
+  }
 
-      particles = [];
-      const count = W < 700 ? 35 : 60;
-      for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.random() * Math.min(W, H) * 0.45;
-        particles.push({
-          x: W / 2 + Math.cos(angle) * radius,
-          y: H / 2 + Math.sin(angle) * radius,
-          baseX: W / 2 + Math.cos(angle) * radius,
-          baseY: H / 2 + Math.sin(angle) * radius,
-          angle: angle,
-          radius: radius,
-          speed: 0.0003 + Math.random() * 0.0006,
-          orbitDir: Math.random() < 0.5 ? 1 : -1,
-          size: 0.8 + Math.random() * 2.2,
-          alpha: 0.15 + Math.random() * 0.35,
-          pulsePhase: Math.random() * Math.PI * 2,
-          pulseSpeed: 0.001 + Math.random() * 0.0025,
-          hueShift: Math.random() * 0.15,
-          isAccent: Math.random() < 0.12,
-          lineLen: 20 + Math.random() * 60,
-          lineAngle: Math.random() * Math.PI * 2,
-          lineSpeed: 0.0005 + Math.random() * 0.0015,
-        });
-      }
-    };
-
-    cv.parentElement?.addEventListener('mousemove', (e: MouseEvent) => {
-      const r = cv.getBoundingClientRect();
-      mouse.x = e.clientX - r.left;
-      mouse.y = e.clientY - r.top;
-      mouse.active = true;
-      mouse.trail.push({ x: mouse.x, y: mouse.y, life: 1 });
-      if (mouse.trail.length > 12) mouse.trail.shift();
+  private debouncedResize() {
+    if (this.resizeDebounce) return;
+    this.resizeDebounce = true;
+    requestAnimationFrame(() => {
+      this.build();
+      this.resizeDebounce = false;
     });
-    cv.parentElement?.addEventListener('mouseleave', () => { mouse.active = false; });
+  }
 
-    const frame = () => {
-      ctx.clearRect(0, 0, W, H);
-      C = getTokens();
-      time += 1;
+  private onMouseMove(e: MouseEvent) {
+    const cv = this.canvas();
+    if (!cv) return;
+    const r = cv.getBoundingClientRect();
+    this.mouse.x = e.clientX - r.left;
+    this.mouse.y = e.clientY - r.top;
+    this.mouse.active = true;
+    this.mouse.trail.push({ x: this.mouse.x, y: this.mouse.y, life: 1 });
+    if (this.mouse.trail.length > 10) this.mouse.trail.shift();
+  }
 
-      // Mouse trail
-      if (mouse.trail.length > 1) {
-        for (let i = 0; i < mouse.trail.length - 1; i++) {
-          const p1 = mouse.trail[i] as {x:number;y:number;life:number};
-          const p2 = mouse.trail[i + 1] as {x:number;y:number;life:number};
-          const alpha = (p1.life * p2.life) * 0.15;
-          const grad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
-          grad.addColorStop(0, `rgba(200, 107, 62, ${alpha})`);
-          grad.addColorStop(1, `rgba(110, 196, 209, ${alpha * 0.5})`);
-          ctx.strokeStyle = grad;
-          ctx.lineWidth = 1.5 * (i / mouse.trail.length);
-          ctx.lineCap = 'round';
-          ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
-          ctx.stroke();
-        }
-        mouse.trail = mouse.trail.map(p => ({ ...p, life: (p.life ?? 1) - 0.08 })).filter(p => p.life > 0) as Array<{x:number;y:number;life:number}>;
-      }
+  private onMouseLeave() {
+    this.mouse.active = false;
+  }
 
-      // Draw subtle field lines connecting nearby particles
-      ctx.lineWidth = 0.5;
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const p1 = particles[i];
-          const p2 = particles[j];
-          const dx = p1.x - p2.x;
-          const dy = p1.y - p2.y;
-          const dist = Math.hypot(dx, dy);
-          const maxDist = Math.min(W, H) * 0.18;
-          if (dist < maxDist) {
-            const alpha = (1 - dist / maxDist) * 0.08;
-            ctx.strokeStyle = p1.isAccent || p2.isAccent
-              ? `rgba(200, 107, 62, ${alpha})`
-              : `rgba(184, 169, 146, ${alpha * 0.6})`;
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
-        }
-      }
+  private getTokens(): ColorTokens {
+    const cs = getComputedStyle(document.documentElement);
+    return {
+      accent: cs.getPropertyValue('--accent').trim() || '#c86b3e',
+      accentGlow: cs.getPropertyValue('--accent-glow').trim() || 'rgba(200, 107, 62, 0.35)',
+      line: cs.getPropertyValue('--line').trim() || '#2e261d',
+      data: cs.getPropertyValue('--data').trim() || '#6ec4d1',
+      muted: cs.getPropertyValue('--muted').trim() || '#b8a992',
+      text: cs.getPropertyValue('--text').trim() || '#f5efe3',
+    };
+  }
 
-      // Update and draw particles
-      for (const p of particles) {
-        // Orbital motion with subtle perturbation
-        p.angle += p.speed * p.orbitDir;
-        const targetX = W / 2 + Math.cos(p.angle) * p.radius;
-        const targetY = H / 2 + Math.sin(p.angle) * p.radius;
+  private getGradient(key: string, createFn: () => CanvasGradient): CanvasGradient {
+    if (!this.gradientCache.has(key)) {
+      this.gradientCache.set(key, createFn());
+    }
+    return this.gradientCache.get(key)!;
+  }
 
-        // Mouse influence - gentle repulsion
-        if (mouse.active) {
-          const dx = p.x - mouse.x;
-          const dy = p.y - mouse.y;
-          const d = Math.hypot(dx, dy);
-          if (d < 180 && d > 0) {
-            const force = (180 - d) / 180 * 0.8;
-            p.x += (dx / d) * force;
-            p.y += (dy / d) * force;
-          }
-        }
+  private build() {
+    const cv = this.canvas();
+    const ctx = this.ctx;
+    if (!cv || !ctx) return;
 
-        // Spring back to orbit
-        p.x += (targetX - p.x) * 0.008;
-        p.y += (targetY - p.y) * 0.008;
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = cv.getBoundingClientRect();
+    this.W = rect.width;
+    this.H = rect.height;
+    cv.width = this.W * this.dpr;
+    cv.height = this.H * this.dpr;
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
 
-        // Pulse
-        p.pulsePhase += p.pulseSpeed;
-        const pulse = 0.7 + 0.3 * Math.sin(p.pulsePhase);
-        const currentSize = p.size * pulse;
-        const currentAlpha = p.alpha * pulse;
+    // Clear gradient cache on resize
+    this.gradientCache.clear();
 
-        // Rotating line emanating from particle
-        p.lineAngle += p.lineSpeed;
+    // Reduce particle count significantly for performance
+    // Use fewer particles but make them more visually distinct
+    const isMobile = this.W < 700;
+    const count = isMobile ? 18 : 30;
 
-        // Draw particle
-        const isAccent = p.isAccent;
-        const baseColor = isAccent ? C.accent : C.muted;
-        const glowColor = isAccent ? C.accentGlow : 'rgba(184, 169, 146, 0.2)';
+    this.particles = [];
+    const centerX = this.W / 2;
+    const centerY = this.H / 2;
+    const maxRadius = Math.min(this.W, this.H) * 0.4;
 
-        // Outer glow
-        if (isAccent) {
-          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, currentSize * 6);
-          g.addColorStop(0, glowColor);
-          g.addColorStop(1, 'rgba(200, 107, 62, 0)');
-          ctx.fillStyle = g;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, currentSize * 6, 0, Math.PI * 2);
-          ctx.fill();
-        }
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.random() * maxRadius * 0.6 + maxRadius * 0.2; // Keep particles in a ring
+      this.particles.push({
+        x: centerX + Math.cos(angle) * radius,
+        y: centerY + Math.sin(angle) * radius,
+        baseX: centerX + Math.cos(angle) * radius,
+        baseY: centerY + Math.sin(angle) * radius,
+        angle: angle,
+        radius: radius,
+        speed: 0.0002 + Math.random() * 0.0004, // Slower, smoother
+        orbitDir: Math.random() < 0.5 ? 1 : -1,
+        size: isMobile ? 1.5 : (1.2 + Math.random() * 1.8),
+        alpha: 0.25 + Math.random() * 0.3,
+        pulsePhase: Math.random() * Math.PI * 2,
+        pulseSpeed: 0.0008 + Math.random() * 0.0015,
+        isAccent: Math.random() < 0.15,
+        lineLen: 15 + Math.random() * 40,
+        lineAngle: Math.random() * Math.PI * 2,
+        lineSpeed: 0.0003 + Math.random() * 0.001,
+      });
+    }
 
-        // Core
-        ctx.fillStyle = baseColor;
-        ctx.globalAlpha = currentAlpha;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, currentSize, 0, Math.PI * 2);
-        ctx.fill();
+    // Update color tokens once on build
+    this.colorTokens = this.getTokens();
+  }
 
-        // Rotating spoke
-        ctx.globalAlpha = currentAlpha * 0.4;
-        ctx.strokeStyle = baseColor;
-        ctx.lineWidth = 0.8;
+  private frame = () => {
+    const ctx = this.ctx;
+    const cv = this.canvas();
+    if (!ctx || !cv || this.reduceMotion) return;
+
+    ctx.clearRect(0, 0, this.W, this.H);
+
+    // Draw mouse trail (optimized - fewer segments)
+    if (this.mouse.trail.length > 1) {
+      for (let i = 0; i < this.mouse.trail.length - 1; i++) {
+        const p1 = this.mouse.trail[i];
+        const p2 = this.mouse.trail[i + 1];
+        const alpha = (p1.life * p2.life) * 0.12;
+        const grad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+        grad.addColorStop(0, `rgba(200, 107, 62, ${alpha})`);
+        grad.addColorStop(1, `rgba(110, 196, 209, ${alpha * 0.5})`);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5 * (i / this.mouse.trail.length);
         ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(
-          p.x + Math.cos(p.lineAngle) * p.lineLen,
-          p.y + Math.sin(p.lineAngle) * p.lineLen
-        );
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
+      }
+      // Update trail life
+      this.mouse.trail = this.mouse.trail
+        .map(p => ({ ...p, life: p.life - 0.07 }))
+        .filter(p => p.life > 0);
+    }
 
-        ctx.globalAlpha = 1;
+    // Skip expensive particle-to-particle connections - removed for performance
+    // Instead, draw a subtle grid/field effect
+
+    // Update and draw particles
+    const centerX = this.W / 2;
+    const centerY = this.H / 2;
+
+    // Pre-calculate center glow gradient
+    const centerGlow = this.getGradient('centerGlow', () => {
+      const g = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.min(this.W, this.H) * 0.35);
+      g.addColorStop(0, 'rgba(200, 107, 62, 0.03)');
+      g.addColorStop(1, 'rgba(200, 107, 62, 0)');
+      return g;
+    });
+
+    for (const p of this.particles) {
+      // Orbital motion
+      p.angle += p.speed * p.orbitDir;
+      const targetX = centerX + Math.cos(p.angle) * p.radius;
+      const targetY = centerY + Math.sin(p.angle) * p.radius;
+
+      // Mouse influence - gentle repulsion (optimized)
+      if (this.mouse.active) {
+        const dx = p.x - this.mouse.x;
+        const dy = p.y - this.mouse.y;
+        const dSq = dx * dx + dy * dy;
+        const maxDistSq = 32400; // 180^2
+        if (dSq < maxDistSq && dSq > 0) {
+          const d = Math.sqrt(dSq);
+          const force = (180 - d) / 180 * 0.6; // Reduced force
+          p.x += (dx / d) * force;
+          p.y += (dy / d) * force;
+        }
       }
 
-      // Center subtle glow
-      const centerGlow = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.min(W, H) * 0.35);
-      centerGlow.addColorStop(0, 'rgba(200, 107, 62, 0.04)');
-      centerGlow.addColorStop(1, 'rgba(200, 107, 62, 0)');
-      ctx.fillStyle = centerGlow;
+      // Spring back to orbit (stiffer spring for stability)
+      p.x += (targetX - p.x) * 0.012;
+      p.y += (targetY - p.y) * 0.012;
+
+      // Pulse
+      p.pulsePhase += p.pulseSpeed;
+      const pulse = 0.75 + 0.25 * Math.sin(p.pulsePhase);
+      const currentSize = p.size * pulse;
+      const currentAlpha = p.alpha * pulse;
+
+      // Rotating spoke
+      p.lineAngle += p.lineSpeed;
+
+      // Draw particle - batch by type for fewer state changes
+      const isAccent = p.isAccent;
+      const baseColor = isAccent ? this.colorTokens.accent : this.colorTokens.muted;
+
+      // Outer glow (only for accent particles)
+      if (isAccent) {
+        const glowKey = `particleGlow_${currentSize.toFixed(1)}`;
+        const glow = this.getGradient(glowKey, () => {
+          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, currentSize * 5);
+          g.addColorStop(0, this.colorTokens.accentGlow);
+          g.addColorStop(1, 'rgba(200, 107, 62, 0)');
+          return g;
+        });
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, currentSize * 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Core
+      ctx.fillStyle = baseColor;
+      ctx.globalAlpha = currentAlpha;
       ctx.beginPath();
-      ctx.arc(W / 2, H / 2, Math.min(W, H) * 0.35, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, currentSize, 0, Math.PI * 2);
       ctx.fill();
 
-      this.animationId = requestAnimationFrame(frame) ?? 0;
-    };
+      // Rotating spoke
+      ctx.globalAlpha = currentAlpha * 0.35;
+      ctx.strokeStyle = baseColor;
+      ctx.lineWidth = 0.6;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(
+        p.x + Math.cos(p.lineAngle) * p.lineLen,
+        p.y + Math.sin(p.lineAngle) * p.lineLen
+      );
+      ctx.stroke();
 
-    build();
-    frame();
-    window.addEventListener('resize', build);
-  }
+      ctx.globalAlpha = 1;
+    }
+
+    // Center glow
+    ctx.fillStyle = centerGlow;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, Math.min(this.W, this.H) * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.animationId = requestAnimationFrame(this.frame);
+  };
 
   private runTerminal() {
     this.termLines.set([]);

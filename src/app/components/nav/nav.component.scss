@@ -160,16 +160,107 @@
 /* Desktop only utility */
 .desktop-only { display: flex; }
 
-#progress {
-  position: fixed; top: 0; left: 0;
-  height: 2px; width: 0%;
+/* Scroll progress bar */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
   background: var(--accent);
-  z-index: 120; pointer-events: none;
+  z-index: 120;
+  pointer-events: none;
+  transform-origin: left center;
+  transition: width 0.1s linear;
+}
+
+/* Navigation dots - right side */
+.nav-dots {
+  position: fixed;
+  right: clamp(16px, 3vw, 32px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 110;
+  pointer-events: auto;
+}
+
+.nav-dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px 4px 4px;
+  border-radius: 8px;
+  transition: background 0.2s, gap 0.2s;
+}
+
+.nav-dot:hover {
+  background: color-mix(in srgb, var(--panel) 60%, transparent);
+  gap: 14px;
+}
+
+.nav-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.dot-inner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  border: 2px solid var(--line);
+  transition: background 0.3s, border-color 0.3s, transform 0.3s cubic-bezier(0.16, 0.84, 0.3, 1);
+  box-shadow: 0 0 0 0 transparent;
+}
+
+.nav-dot:hover .dot-inner {
+  border-color: var(--accent);
+  transform: scale(1.2);
+}
+
+.nav-dot.active .dot-inner {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.dot-label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity 0.2s, transform 0.2s, color 0.2s;
+  pointer-events: none;
+}
+
+.nav-dot:hover .dot-label,
+.nav-dot.active .dot-label {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--muted);
+}
+
+.nav-dot.active .dot-label {
+  color: var(--accent);
+  font-weight: 500;
 }
 
 /* ==========================================================================
    MOBILE RESPONSIVE
    ========================================================================== */
+
+@media (max-width: 760px) {
+  .nav-dots { display: none; }
+}
 
 @media (max-width: 760px) {
   .desktop-only { display: none !important; }

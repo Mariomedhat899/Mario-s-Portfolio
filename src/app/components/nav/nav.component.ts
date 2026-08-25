@@ -1,4 +1,4 @@
-import { Component, input, output, effect, inject, PLATFORM_ID, signal, HostListener } from '@angular/core';
+import { Component, input, output, effect, inject, PLATFORM_ID, signal, AfterViewInit, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 @Component({
@@ -7,14 +7,25 @@ import { isPlatformBrowser } from '@angular/common';
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.scss'
 })
-export class NavComponent {
+export class NavComponent implements AfterViewInit, OnDestroy {
   theme = input.required<'light' | 'dark'>();
   themeToggle = output<void>();
 
   private platformId = inject(PLATFORM_ID);
   protected uptime = signal('T+00:00:00');
   protected mobileMenuOpen = signal(false);
+  protected scrollProgress = signal(0);
+  protected activeSection = signal(0);
   private startTime = Date.now();
+  private scrollHandler: (() => void) | null = null;
+
+  // Section IDs for navigation dots
+  protected readonly sectionIds = [
+    'hero', 'ticker', 'about', 'work', 'now', 'stack', 'notes', 'edu', 'contact'
+  ];
+  protected readonly sectionLabels = [
+    'Hero', 'Live', 'About', 'Work', 'Now', 'Stack', 'Notes', 'Edu', 'Contact'
+  ];
 
   constructor() {
     effect(() => {
@@ -26,6 +37,56 @@ export class NavComponent {
       }, 1000);
       return () => clearInterval(interval);
     });
+  }
+
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.initScrollTracking();
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.scrollHandler) {
+      window.removeEventListener('scroll', this.scrollHandler);
+    }
+  }
+
+  private initScrollTracking() {
+    const sections = this.sectionIds.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+
+    const updateScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? scrollTop / docHeight : 0;
+      this.scrollProgress.set(Math.max(0, Math.min(1, progress)));
+
+      // Find active section
+      let active = 0;
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i];
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= window.innerHeight * 0.5) {
+          active = i;
+          break;
+        }
+      }
+      this.activeSection.set(active);
+    };
+
+    // Throttle scroll handler
+    let ticking = false;
+    this.scrollHandler = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', this.scrollHandler, { passive: true });
+    updateScroll();
   }
 
   onThemeClick() {
@@ -40,10 +101,11 @@ export class NavComponent {
     this.mobileMenuOpen.set(false);
   }
 
-  @HostListener('window:resize')
-  onResize() {
-    if (window.innerWidth > 760) {
-      this.mobileMenuOpen.set(false);
+  scrollToSection(index: number) {
+    const section = document.getElementById(this.sectionIds[index]);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+      this.closeMobileMenu();
     }
   }
 }
