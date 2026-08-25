@@ -1,12 +1,14 @@
-<app-nav [theme]="theme()" (themeToggle)="toggleTheme()" />
-<app-hero />
-<app-ticker />
-<app-about />
-<app-projects />
-<app-now />
-<app-stack />
-<app-notes />
-<app-education />
-<app-contact />
-<app-footer />
-<router-outlet />
+<main role="main" aria-label="Main content">
+  <app-nav [theme]="theme()" (themeToggle)="toggleTheme()" />
+  <app-hero />
+  <app-ticker />
+  <app-about />
+  <app-projects />
+  <app-now />
+  <app-stack />
+  <app-notes />
+  <app-education />
+  <app-contact />
+  <app-footer />
+  <router-outlet />
+</main>
