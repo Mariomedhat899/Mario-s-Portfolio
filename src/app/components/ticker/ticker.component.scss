@@ -7,7 +7,7 @@
   position: relative;
 }
 
-#ticker {
+.ticker {
   display: flex; flex-direction: column; height: 150px; overflow: hidden;
   mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent);
   -webkit-mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent);
