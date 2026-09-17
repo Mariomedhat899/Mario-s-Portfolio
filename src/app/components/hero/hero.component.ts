@@ -73,6 +73,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   private lastResizeTime = 0;
   private resizeDebounce = false;
   private gradientCache = new Map<string, CanvasGradient>();
+  private linkDistSq = 0;
 
   ngAfterViewInit() {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -162,16 +163,18 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
     // Reduce particle count significantly for performance
     // Use fewer particles but make them more visually distinct
     const isMobile = this.W < 700;
-    const count = isMobile ? 18 : 30;
+    const count = isMobile ? 20 : 34;
+    const linkDist = isMobile ? 90 : 130;
+    this.linkDistSq = linkDist * linkDist;
 
     this.particles = [];
     const centerX = this.W / 2;
     const centerY = this.H / 2;
-    const maxRadius = Math.min(this.W, this.H) * 0.4;
+    const maxRadius = Math.min(this.W, this.H) * 0.42;
 
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const radius = Math.random() * maxRadius * 0.6 + maxRadius * 0.2; // Keep particles in a ring
+      const radius = Math.random() * maxRadius * 0.65 + maxRadius * 0.18; // Keep particles in a ring
       this.particles.push({
         x: centerX + Math.cos(angle) * radius,
         y: centerY + Math.sin(angle) * radius,
@@ -226,9 +229,6 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
         .filter(p => p.life > 0);
     }
 
-    // Skip expensive particle-to-particle connections - removed for performance
-    // Instead, draw a subtle grid/field effect
-
     // Update and draw particles
     const centerX = this.W / 2;
     const centerY = this.H / 2;
@@ -267,6 +267,32 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
 
       // Pulse
       p.pulsePhase += p.pulseSpeed;
+    }
+
+    // Faint constellation links between nearby particles — gives the field structure
+    // instead of a scatter of dots. Drawn before particles so cores sit on top.
+    ctx.lineWidth = 0.6;
+    for (let i = 0; i < this.particles.length; i++) {
+      const a = this.particles[i];
+      for (let j = i + 1; j < this.particles.length; j++) {
+        const b = this.particles[j];
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        const dSq = dx * dx + dy * dy;
+        if (dSq < this.linkDistSq) {
+          const t = 1 - dSq / this.linkDistSq;
+          ctx.globalAlpha = t * 0.14;
+          ctx.strokeStyle = this.colorTokens.muted;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    for (const p of this.particles) {
       const pulse = 0.75 + 0.25 * Math.sin(p.pulsePhase);
       const currentSize = p.size * pulse;
       const currentAlpha = p.alpha * pulse;

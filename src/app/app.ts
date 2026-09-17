@@ -13,6 +13,7 @@ import { EducationComponent } from './components/education/education.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { initReveal } from './reveal';
+import { initInteractions } from './interactions';
 
 @Component({
   selector: 'app-root',
@@ -60,6 +61,7 @@ export class App implements AfterViewInit {
   ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
       initReveal();
+      initInteractions();
     }
   }
 }
