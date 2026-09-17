@@ -9,9 +9,8 @@
     </div>
 
     <div class="proj-list">
-      @for (proj of projects; track proj.id; let i = $index) {
-        <article class="proj reveal spotlight" [class.open]="isOpen(proj.id)">
-          <span class="proj-index mono">{{ (i + 1).toString().padStart(2, '0') }}</span>
+      @for (proj of projects; track proj.id) {
+        <article class="proj reveal" [class.open]="isOpen(proj.id)">
           <div class="proj-top">
             <div>
               <h3>{{ proj.name }}</h3>
