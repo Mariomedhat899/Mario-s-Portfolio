@@ -60,6 +60,11 @@ export class App implements AfterViewInit {
   ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
       initReveal();
+      // Let the browser paint the real UI before dismissing the preloader,
+      // which itself enforces the 2.8s minimum display time (see index.html).
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        (window as any).hidePreloader?.();
+      }));
     }
   }
 }

@@ -2,13 +2,11 @@
 
 .hero {
   position: relative;
-  height: 100vh;
   min-height: 100svh;
-  max-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(60px, 8vh, 100px) 0 clamp(40px, 5vh, 80px);
+  padding: clamp(76px, 10vh, 110px) 0 clamp(40px, 5vh, 80px);
   overflow: hidden;
 }
 
@@ -158,30 +156,9 @@ h1 em { font-style: italic; color: var(--accent); -webkit-text-fill-color: var(-
 }
 @keyframes blink { 50% { opacity: 0; } }
 
-.scroll-hint {
-  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 2;
-  font-family: "JetBrains Mono", monospace; font-size: .62rem; letter-spacing: .25em; color: var(--faint);
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  opacity: 0;
-  animation: fadeInUp 1s ease forwards 1.8s;
-}
-@keyframes fadeInUp { to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-.scroll-hint::after {
-  content: ""; width: 1px; height: 42px;
-  background: linear-gradient(180deg, var(--accent), var(--data), transparent);
-  animation: drip 2.2s ease-in-out infinite;
-}
-@keyframes drip {
-  0% { transform: scaleY(.15); transform-origin: top; opacity: 0.6; }
-  45% { transform: scaleY(1); transform-origin: top; opacity: 1; }
-  55% { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
-  100% { transform: scaleY(.15); transform-origin: bottom; opacity: 0; }
-}
-
 @media (max-width: 960px) {
   .hero-grid { grid-template-columns: 1fr; gap: 48px; }
   .term-body { min-height: 250px; }
-  .scroll-hint { display: none; }
   .hero-fade {
     background:
       radial-gradient(ellipse 80% 70% at 50% 20%, rgba(200, 107, 62, 0.06) 0%, transparent 60%),
@@ -192,8 +169,6 @@ h1 em { font-style: italic; color: var(--accent); -webkit-text-fill-color: var(-
 @media (prefers-reduced-motion: reduce) {
   .net { display: none; }
   .load-in { opacity: 1; transform: none; animation: none; }
-  .scroll-hint { opacity: 1; animation: none; transform: translateX(-50%); }
-  .scroll-hint::after { animation: none; height: 24px; background: var(--accent); }
   .here { animation: none; }
   .caret { animation: none; opacity: 1; }
 }

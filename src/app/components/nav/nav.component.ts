@@ -15,17 +15,8 @@ export class NavComponent implements AfterViewInit, OnDestroy {
   protected uptime = signal('T+00:00:00');
   protected mobileMenuOpen = signal(false);
   protected scrollProgress = signal(0);
-  protected activeSection = signal(0);
   private startTime = Date.now();
   private scrollHandler: (() => void) | null = null;
-
-  // Section IDs for navigation dots
-  protected readonly sectionIds = [
-    'hero', 'ticker', 'about', 'work', 'now', 'stack', 'notes', 'edu', 'contact'
-  ];
-  protected readonly sectionLabels = [
-    'Hero', 'Live', 'About', 'Work', 'Now', 'Stack', 'Notes', 'Edu', 'Contact'
-  ];
 
   constructor() {
     effect(() => {
@@ -52,25 +43,11 @@ export class NavComponent implements AfterViewInit, OnDestroy {
   }
 
   private initScrollTracking() {
-    const sections = this.sectionIds.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[];
-
     const updateScroll = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const progress = docHeight > 0 ? scrollTop / docHeight : 0;
       this.scrollProgress.set(Math.max(0, Math.min(1, progress)));
-
-      // Find active section
-      let active = 0;
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const section = sections[i];
-        const rect = section.getBoundingClientRect();
-        if (rect.top <= window.innerHeight * 0.5) {
-          active = i;
-          break;
-        }
-      }
-      this.activeSection.set(active);
     };
 
     // Throttle scroll handler
@@ -99,13 +76,5 @@ export class NavComponent implements AfterViewInit, OnDestroy {
 
   closeMobileMenu() {
     this.mobileMenuOpen.set(false);
-  }
-
-  scrollToSection(index: number) {
-    const section = document.getElementById(this.sectionIds[index]);
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-      this.closeMobileMenu();
-    }
   }
 }

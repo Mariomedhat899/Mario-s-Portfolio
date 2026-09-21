@@ -205,6 +205,26 @@ h1, h2, h3 {
   background: linear-gradient(90deg, var(--accent), transparent);
 }
 
+/* Section wrapper — shared by every content section (was previously only
+   scoped inside one component's stylesheet, so most sections silently got
+   zero vertical padding from this rule; now global so it applies everywhere). */
+.block { padding: clamp(80px, 11vw, 130px) 0; }
+
+/* Section header row — title + optional side note (shared across sections) */
+.sec-head {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+  margin-bottom: clamp(36px, 5vw, 56px);
+}
+.sec-head .eyebrow::before { display: none; }
+.sec-head h2 {
+  font-family: "Archivo", sans-serif;
+  font-size: clamp(1.9rem, 3.6vw, 2.7rem); font-weight: 790; letter-spacing: -.01em; margin-top: 16px;
+}
+.sec-note {
+  font-family: "IBM Plex Mono", monospace; font-size: .74rem; color: var(--faint);
+  letter-spacing: .05em; text-align: right; max-width: 230px; line-height: 1.7;
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -218,33 +238,8 @@ h1, h2, h3 {
   body::before { display: none; }
 }
 
-/* Scroll-driven animations (progressive enhancement) */
+/* Scroll-driven parallax on hero background (progressive enhancement, harmless — decorative only) */
 @supports (animation-timeline: scroll()) {
-  .reveal[data-scroll-animated] {
-    animation: reveal-scroll linear;
-    animation-timeline: view();
-    animation-range: entry 0% cover 30%;
-  }
-
-  @keyframes reveal-scroll {
-    from { opacity: 0; transform: translateY(28px) scale(0.98); }
-    to { opacity: 1; transform: none; }
-  }
-
-  /* Section entrance animations */
-  section.block,
-  header.hero {
-    animation: section-reveal linear;
-    animation-timeline: view();
-    animation-range: entry 0% cover 25%;
-  }
-
-  @keyframes section-reveal {
-    from { opacity: 0; transform: translateY(40px); }
-    to { opacity: 1; transform: none; }
-  }
-
-  /* Parallax background on hero */
   .hero .net {
     animation: parallax-slow linear;
     animation-timeline: scroll(root);
@@ -253,18 +248,6 @@ h1, h2, h3 {
   @keyframes parallax-slow {
     from { transform: translateY(0); }
     to { transform: translateY(-30vh); }
-  }
-
-  /* Fade out hero content on scroll */
-  .hero .hero-grid {
-    animation: hero-fade linear;
-    animation-timeline: view();
-    animation-range: cover 0% cover 100%;
-  }
-
-  @keyframes hero-fade {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(-20px); }
   }
 }
 
