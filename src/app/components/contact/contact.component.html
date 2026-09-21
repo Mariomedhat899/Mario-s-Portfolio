@@ -1,12 +1,13 @@
 <section class="block contact" id="contact" style="padding-top:20px">
   <div class="wrap">
+    <h2 class="sr-only">Contact Mario Medhat</h2>
     <div class="eyebrow">// handshake</div>
     <div style="margin-top:30px" class="reveal">
       <span class="t-dim mono" style="font-size:.8rem;display:block;margin-bottom:14px">$ curl -X POST mario/contact \</span>
       <a class="mail-link" href="mailto:mariomedhat899@gmail.com">mariomedhat899<wbr>@gmail.com</a>
     </div>
     <button class="copy-btn reveal" (click)="copyMail()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       {{ copied() ? 'copied!' : 'copy email' }}
     </button>
 

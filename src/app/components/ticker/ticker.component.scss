@@ -9,8 +9,10 @@
 
 .ticker {
   display: flex; flex-direction: column; height: 150px; overflow: hidden;
-  mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent);
-  -webkit-mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent);
+  /* No opacity fade here: a gradient mask fading text toward transparent
+     is fundamentally incompatible with WCAG AA contrast minimums (even at
+     80% opacity, effective contrast drops well below 4.5:1). Hard clip
+     instead — full contrast at all times, slightly less soft edges. */
 }
 
 .log-row {
@@ -21,7 +23,7 @@
   max-width: 1120px; margin: 0 auto; width: 100%;
 }
 
-@keyframes logIn { from { opacity: 0; transform: translateY(-8px); } }
+@keyframes logIn { from { transform: translateY(-8px); } }
 
 .l-time { color: var(--faint); }
 .l-method { color: var(--data); font-weight: 600; }
